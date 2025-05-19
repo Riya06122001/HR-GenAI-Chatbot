@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Generative AI HR Chatbot</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(145deg, #e0e7ff, #fce7f3, #fef9c3);
+      overflow-x: hidden;
+    }
+    .chat-messages::-webkit-scrollbar {
+      width: 6px;
+    }
+    .chat-messages::-webkit-scrollbar-thumb {
+      background: linear-gradient(to bottom, #a855f7, #ec4899);
+      border-radius: 3px;
+    }
+    .chat-messages::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    .message-container {
+      animation: fadeInUp 0.5s ease forwards;
+    }
+    .chat-container {
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+    .chat-container:hover {
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+      transform: translateY(-2px);
+    }
+    .input-focus {
+      transition: all 0.3s ease;
+    }
+    .input-focus:focus {
+      box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.2), 0 0 8px rgba(168, 85, 247, 0.4);
+    }
+    .timestamp {
+      font-size: 0.7rem;
+      color: rgba(255, 255, 255, 0.8);
+      margin-top: 4px;
+    }
+    .btn-hover {
+      transition: all 0.3s ease;
+    }
+    .btn-hover:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    .loading-indicator {
+      display: none;
+      font-size: 0.8rem;
+      color: #a855f7;
+      animation: pulse 1.5s infinite;
+    }
+  .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+  }
+
+  /* Style for formatted bot responses */
+  .max-w-\[70\%\] strong {
+    font-weight: bold;
+  }
+
+  .max-w-\[70\%\] em {
+    font-style: italic;
+  }
+
+  .max-w-\[70\%\] ul {
+    list-style-type: disc;
+    margin: 0.5em 0;
+    padding-left: 1.5em;
+  }
+
+  .max-w-\[70\%\] li {
+    margin-bottom: 0.3em;
+  }
+
+  .max-w-\[70\%\] pre {
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 0.5em;
+    border-radius: 4px;
+    overflow-x: auto;
+  }
+
+  .max-w-\[70\%\] code {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+  }
+
+  .max-w-\[70\%\] br {
+    display: block;
+    content: '';
+    margin-bottom: 0.5em;
+  }
+</style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4 sm:p-6 relative overflow-hidden">
+  <div class="absolute inset-0 -z-10 opacity-15 bg-[url('https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1470&q=80')] bg-cover bg-center"></div>
+  <div class="absolute inset-0 -z-20 opacity-10 bg-[url('https://images.unsplash.com/photo-1526378723032-7a1a3a7a7a7a?auto=format&fit=crop&w=1470&q=80')] bg-cover bg-center"></div>
+  <div class="flex flex-col w-full max-w-3xl sm:max-w-2xl h-[90vh] sm:h-[85vh] bg-white bg-opacity-95 rounded-3xl shadow-2xl overflow-hidden chat-container backdrop-blur-md">
+    <header class="bg-gradient-to-r from-purple-700 via-pink-600 to-red-600 text-white p-4 sm:p-5 flex items-center space-x-4">
+      <img src="data:image/jpeg;base64,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" alt="HR Chatbot Avatar" class="w-12 h-12 rounded-full border-2 border-white/50" />
+      <div>
+        <h1 class="font-bold text-xl sm:text-2xl tracking-tight">HRMinds</h1>
+        <p class="text-sm opacity-80">Your vibrant HR assistant</p>
+      </div>
+    </header>
+    <main class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 chat-messages flex flex-col" id="chatMessages" aria-live="polite" aria-label="Chat messages">
+      <!-- Chat messages will appear here -->
+    </main>
+    <form id="chatForm" class="flex border-t border-gray-200 p-4 sm:p-5 space-x-3 bg-gray-50/80" aria-label="Send message form">
+      <div class="relative flex-1">
+        <input
+          type="text"
+          id="chatInput"
+          class="flex-1 border border-gray-300 rounded-full px-5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 input-focus bg-white/80"
+          placeholder="Ask HR anything..."
+          aria-label="Chat input"
+          autocomplete="off"
+          required
+        />
+        <span id="loadingIndicator" class="loading-indicator absolute right-3 top-1/2 -translate-y-1/2">
+          <i class="fas fa-spinner fa-spin"></i>
+        </span>
+      </div>
+      <button
+        type="submit"
+        class="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-5 sm:px-6 py-3 rounded-full btn-hover"
+        aria-label="Send message"
+      >
+        <i class="fas fa-paper-plane"></i>
+      </button>
+      <button
+        type="button"
+        id="clearChatBtn"
+        class="bg-gradient-to-r from-yellow-400 to-orange-400 hover:from-yellow-500 hover:to-orange-500 text-white px-5 sm:px-6 py-3 rounded-full btn-hover"
+        aria-label="Clear chat"
+      >
+        <i class="fas fa-trash-alt"></i>
+      </button>
+    </form>
+  </div>
+ 
+<script>
+  const chatForm = document.getElementById('chatForm');
+  const chatInput = document.getElementById('chatInput');
+  const chatMessages = document.getElementById('chatMessages');
+  const clearChatBtn = document.getElementById('clearChatBtn');
+  const loadingIndicator = document.getElementById('loadingIndicator');
+
+  function createMessageElement(message, sender) {
+    const messageContainer = document.createElement('div');
+    messageContainer.classList.add('flex', 'items-end', 'gap-3', sender === 'user' ? 'justify-end' : 'justify-start');
+
+    const avatar = document.createElement('img');
+    avatar.classList.add('avatar');
+    avatar.src = sender === 'user'
+      ? 'https://encrypted-tbn0.gstatic.com/images?q=tbni:ANd9GcR9iS4887MqYnErWEHhNy-G2i11h3mG8IG9-Q&s'
+      : 'https://cdn-icons-png.flaticon.com/512/4712/4712109.png';
+
+    const messageBubble = document.createElement('div');
+    messageBubble.classList.add(
+      'max-w-[70%]', 'px-4', 'py-3', 'rounded-2xl', 'shadow-md', 'text-sm',
+      'leading-relaxed', 'font-medium', 'transition-all', 'duration-200'
+    );
+
+    if (sender === 'user') {
+      messageBubble.classList.add('bg-gradient-to-r', 'from-pink-400', 'via-red-400', 'to-yellow-400', 'text-white', 'rounded-br-none');
+    } else {
+      messageBubble.classList.add('bg-gradient-to-r', 'from-purple-300', 'via-indigo-400', 'to-blue-400', 'text-white', 'rounded-bl-none');
+    }
+
+    messageBubble.innerHTML = message; // Use innerHTML for HTML content
+
+    if (sender === 'user') {
+      messageContainer.appendChild(messageBubble);
+      messageContainer.appendChild(avatar);
+    } else {
+      messageContainer.appendChild(avatar);
+      messageContainer.appendChild(messageBubble);
+    }
+
+    chatMessages.appendChild(messageContainer);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    return messageBubble; // Return bubble for streaming updates
+  }
+
+  async function sendToBot(message) {
+    loadingIndicator.style.display = 'block';
+
+    try {
+      const response = await fetch('/chat/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ message: message })
+      });
+
+      loadingIndicator.style.display = 'none';
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      // Create a single message bubble for the bot's response
+      let botMessageBubble = createMessageElement('', 'bot');
+      let fullMessage = '';
+
+      // Read the streaming response
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n').filter(line => line.trim());
+
+        for (const line of lines) {
+          try {
+            const data = JSON.parse(line);
+            if (data.error) {
+              botMessageBubble.innerHTML = 'Error: ' + data.error;
+              return;
+            }
+            if (data.chunk) {
+              fullMessage += data.chunk + ' ';
+              // Render the HTML directly
+              botMessageBubble.innerHTML = fullMessage.trim();
+              chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            if (data.done) {
+              // Streaming complete
+              return;
+            }
+          } catch (e) {
+            console.error('Error parsing chunk:', e);
+          }
+        }
+      }
+    } catch (error) {
+      loadingIndicator.style.display = 'none';
+      createMessageElement('Network error: ' + error.message, 'bot');
+    }
+  }
+
+  chatForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const message = chatInput.value.trim();
+    if (message) {
+      createMessageElement(message, 'user');
+      chatInput.value = '';
+      sendToBot(message);  // 🚀 Send message to Django backend
+    }
+  });
+
+  clearChatBtn.addEventListener('click', () => {
+    chatMessages.innerHTML = '';
+  });
+</script>
+</body>
+</html>
+ 
