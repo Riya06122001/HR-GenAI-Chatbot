@@ -4,40 +4,36 @@ from langchain.agents import create_sql_agent
 from langchain.agents.agent_toolkits import SQLDatabaseToolkit
 from langchain.memory import ConversationBufferMemory
 import os
-settings_module = 'hrproject.production' if 'WEBSITE_HOSTNAME' in os.environ else 'hrproject.settings'
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", settings_module)
-from django.conf import settings 
+
 
  
-# Set up the SQL database connection
-db = SQLDatabase.from_uri(settings.DATABASE_URL)    
- 
-# Set up the LLM (Azure OpenAI)
-llm = AzureChatOpenAI(
-    deployment_name=settings.DEPLOYMENT_NAME,
-    openai_api_version=settings.OPENAI_API_VERSION,
-    model_name=settings.MODEL_NAME,
-    temperature=0,
-    openai_api_key = settings.OPENAI_API_KEY,
-    openai_api_base = settings.OPENAI_API_BASE,
-    openai_api_type = "azure",
-
-    
-)
- 
-memory = ConversationBufferMemory(memory_key="chat_history")
-toolkit = SQLDatabaseToolkit(db=db, llm=llm)
- 
-agent_executor = create_sql_agent(
-    llm=llm,
-    toolkit=toolkit,
-    verbose=True,
-    memory=memory,
-    agent_type="openai-tools"
-)
- 
-def ask_agent(query):
+def ask_agent(query,db_url, deployment_name, openai_api_version, model_name, openai_api_key, openai_api_base):
     try:
+        # Set up the SQL database connection
+        db = SQLDatabase.from_uri(db_url)
+
+        # Set up the LLM (Azure OpenAI)
+        llm = AzureChatOpenAI(
+            deployment_name=deployment_name,
+            openai_api_version=openai_api_version,
+            model_name=model_name,
+            temperature=0,
+            openai_api_key=openai_api_key,
+            openai_api_base=openai_api_base,
+            openai_api_type="azure",
+
+        )
+
+        memory = ConversationBufferMemory(memory_key="chat_history")
+        toolkit = SQLDatabaseToolkit(db=db, llm=llm)
+
+        agent_executor = create_sql_agent(
+            llm=llm,
+            toolkit=toolkit,
+            verbose=True,
+            memory=memory,
+            agent_type="openai-tools"
+        )
         return agent_executor.run(query)
     except Exception as e:
         return f"Error: {str(e)}"

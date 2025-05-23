@@ -4,6 +4,7 @@ from django.http import JsonResponse, StreamingHttpResponse
 import json
 import re
 import time
+from django.conf import settings
 from .langchain_sql_agent import ask_agent
 
 def index(request):
@@ -57,7 +58,7 @@ def chat_view(request):
             def stream_response():
                 try:
                     # Get the full response from ask_agent
-                    response = ask_agent(user_message)
+                    response = ask_agent(user_message,settings.DATABASE_URL, settings.DEPLOYMENT_NAME, settings.OPENAI_API_VERSION, settings.MODEL_NAME, settings.OPENAI_API_KEY, settings.OPENAI_API_BASE)
                     # Format the response as HTML
                     formatted_response = format_markdown(response)
                     # Split response into chunks for streaming effect
