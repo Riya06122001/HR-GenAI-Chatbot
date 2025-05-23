@@ -13,7 +13,7 @@ const avatar = document.createElement('img');
 avatar.classList.add('avatar');
 avatar.src = sender === 'user'
     ? 'https://encrypted-tbn0.gstatic.com/images?q=tbni:ANd9GcR9iS4887MqYnErWEHhNy-G2i11h3mG8IG9-Q&s'
-    : 'https://cdn-icons-png.flaticon.com/512/4712/4712109.png';
+    : 'https://cdn-icons-png.flaticon.com/512/4712/4712109.png'; 
 
 const messageBubble = document.createElement('div');
 messageBubble.classList.add(
