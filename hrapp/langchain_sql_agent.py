@@ -4,7 +4,8 @@ from langchain.agents import create_sql_agent
 from langchain.agents.agent_toolkits import SQLDatabaseToolkit
 from langchain.memory import ConversationBufferMemory
 import os
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "hrproject.settings")
+settings_module = 'hrproject.production' if 'WEBSITE_HOSTNAME' in os.environ else 'hrproject.settings'
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", settings_module)
 from django.conf import settings 
 
  
@@ -20,7 +21,7 @@ llm = AzureChatOpenAI(
     openai_api_key = settings.OPENAI_API_KEY,
     openai_api_base = settings.OPENAI_API_BASE,
     openai_api_type = "azure",
-    
+
     
 )
  

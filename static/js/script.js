@@ -3,7 +3,7 @@ const chatInput = document.getElementById('chatInput');
 const chatMessages = document.getElementById('chatMessages');
 const clearChatBtn = document.getElementById('clearChatBtn');
 const loadingIndicator = document.getElementById('loadingIndicator');
-// const html = window.marked(someMarkdownText);
+
 
 function createMessageElement(message, sender) {
 const messageContainer = document.createElement('div');
