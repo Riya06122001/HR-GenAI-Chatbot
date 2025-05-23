@@ -12,9 +12,14 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load environment variables from .env file
+load_dotenv()
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -32,6 +37,7 @@ ASGI_APPLICATION = 'hrapp.asgi.application'
 # Application definition
 
 INSTALLED_APPS = [
+    'whitenoise.runserver_nostatic',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -135,3 +141,12 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Retrieve sensitive data from environment variables
+DATABASE_URL = os.getenv("DATABASE_URL")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_API_BASE = os.getenv("OPENAI_API_BASE")
+OPENAI_API_VERSION = os.getenv("OPENAI_API_VERSION")
+DEPLOYMENT_NAME = os.getenv("DEPLOYMENT_NAME")
+MODEL_NAME = os.getenv("MODEL_NAME")
