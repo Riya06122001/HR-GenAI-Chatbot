@@ -71,4 +71,4 @@ HRMinds is an intelligent, conversational HR assistant built using LangChain, Az
    - `DATABASE_URL`
 3. Run the backend:
    ```bash
-   uvicorn app:app --reload
+   
